@@ -6,6 +6,8 @@ import {
   LockKeyhole
 } from "lucide-react";
 
+import AdminDashboard from "./pages/AdminDashboard";
+
 import {
   BrowserRouter,
   Routes,
@@ -146,6 +148,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/verify/:code" element={<VerifyBadge />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="*" element={<Home />} />
       </Routes>
     </BrowserRouter>
