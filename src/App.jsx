@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import {
   ShieldCheck,
   QrCode,
@@ -20,6 +22,168 @@ import {
 import VerifyBadge from "./pages/VerifyBadge";
 import AdminLogin from "./pages/AdminLogin";
 import "./style.css";
+
+function SplashScreen() {
+  return (
+    <div className="socoda-splash">
+      <style>{`
+        .socoda-splash {
+          position: fixed;
+          inset: 0;
+          z-index: 99999;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          background: linear-gradient(145deg, #081d36, #123b65);
+          color: white;
+          animation: splashFadeIn 0.5s ease;
+        }
+
+        .splash-logo {
+          width: 118px;
+          height: 118px;
+          border: 2px solid #f2c230;
+          border-radius: 28px;
+          padding: 12px;
+          background: rgba(255,255,255,0.08);
+          box-shadow: 0 15px 45px rgba(0,0,0,0.25);
+          animation: splashPulse 1.8s ease-in-out infinite;
+        }
+
+        .splash-logo img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+        }
+
+        .splash-title {
+          margin-top: 28px;
+          font-size: 23px;
+          font-weight: 800;
+          letter-spacing: 1.5px;
+          text-align: center;
+        }
+
+        .splash-title span {
+          color: #f2c230;
+        }
+
+        .splash-subtitle {
+          margin-top: 10px;
+          color: #c8d6e5;
+          font-size: 12px;
+          letter-spacing: 4px;
+        }
+
+        .splash-line {
+          display: flex;
+          width: 90px;
+          height: 4px;
+          margin-top: 35px;
+          overflow: hidden;
+          border-radius: 10px;
+          background: rgba(255,255,255,0.15);
+        }
+
+        .splash-line::after {
+          content: "";
+          width: 45%;
+          background: #f2c230;
+          border-radius: 10px;
+          animation: splashLoading 1.2s ease-in-out infinite;
+        }
+
+        .splash-footer {
+          position: absolute;
+          bottom: 35px;
+          color: #b9c8d9;
+          font-size: 10px;
+          letter-spacing: 1px;
+          text-align: center;
+        }
+
+        .splash-colors {
+          display: flex;
+          width: 75px;
+          height: 4px;
+          margin: 12px auto 0;
+        }
+
+        .splash-colors span {
+          flex: 1;
+        }
+
+        .splash-colors span:nth-child(1) {
+          background: #1769aa;
+        }
+
+        .splash-colors span:nth-child(2) {
+          background: #e53935;
+        }
+
+        .splash-colors span:nth-child(3) {
+          background: #f2c230;
+        }
+
+        @keyframes splashPulse {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.06);
+          }
+        }
+
+        @keyframes splashLoading {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(230%);
+          }
+        }
+
+        @keyframes splashFadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+      `}</style>
+
+      <div className="splash-logo">
+        <img src="/icon-512.svg" alt="SOCODA DIGITAL ID" />
+      </div>
+
+      <h1 className="splash-title">
+        SOCODA <span>DIGITAL ID</span>
+      </h1>
+
+      <p className="splash-subtitle">
+        COOP-CA / KWILU
+      </p>
+
+      <div className="splash-line"></div>
+
+      <div className="splash-footer">
+        <p>SÉCURITÉ · IDENTITÉ · CONFIANCE</p>
+
+        <div className="splash-colors">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <p style={{ marginTop: 12 }}>
+          © 2026 SOCODA COOP-CA/Kwilu
+        </p>
+      </div>
+    </div>
+  );
+}
 
 function Home() {
   return (
@@ -139,9 +303,19 @@ function Home() {
   );
 }
 
-export default function App() {
+function AppContent() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <BrowserRouter>
+    <>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/verify/:code" element={<VerifyBadge />} />
@@ -151,6 +325,16 @@ export default function App() {
         <Route path="/admin/badges" element={<BadgeManagement />} />
         <Route path="*" element={<Home />} />
       </Routes>
+
+      {showSplash && <SplashScreen />}
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }
