@@ -1,7 +1,22 @@
-import { ShieldCheck, QrCode, Users, CreditCard, LockKeyhole } from "lucide-react";
+import {
+  ShieldCheck,
+  QrCode,
+  Users,
+  CreditCard,
+  LockKeyhole
+} from "lucide-react";
+
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link
+} from "react-router-dom";
+
+import VerifyBadge from "./pages/VerifyBadge";
 import "./style.css";
 
-export default function App() {
+function Home() {
   return (
     <div className="app">
       <header className="header">
@@ -64,7 +79,6 @@ export default function App() {
                   <small>IDENTITÉ NUMÉRIQUE</small>
                   <strong>OFFICIELLE</strong>
                 </div>
-
                 <QrCode size={55} />
               </div>
             </div>
@@ -73,25 +87,19 @@ export default function App() {
 
         <section className="features">
           <div className="feature">
-            <div className="feature-icon">
-              <QrCode />
-            </div>
+            <div className="feature-icon"><QrCode /></div>
             <h3>Vérification QR</h3>
             <p>Authentification numérique des badges.</p>
           </div>
 
           <div className="feature">
-            <div className="feature-icon">
-              <Users />
-            </div>
+            <div className="feature-icon"><Users /></div>
             <h3>Gestion des agents</h3>
             <p>Centralisation des informations des agents.</p>
           </div>
 
           <div className="feature">
-            <div className="feature-icon">
-              <CreditCard />
-            </div>
+            <div className="feature-icon"><CreditCard /></div>
             <h3>Gestion des badges</h3>
             <p>Suivi de validité et des statuts des badges.</p>
           </div>
@@ -102,8 +110,8 @@ export default function App() {
           <div>
             <h3>Vérification d'un badge</h3>
             <p>
-              Scannez le QR code figurant sur un badge SOCODA pour
-              consulter son authenticité et sa validité.
+              Scannez le QR code figurant sur un badge SOCODA
+              pour consulter son authenticité et sa validité.
             </p>
           </div>
         </section>
@@ -113,17 +121,29 @@ export default function App() {
           <div>
             <h3>Espace d'administration</h3>
             <p>
-              Accès réservé aux administrateurs autorisés de SOCODA
-              COOP-CA/Kwilu.
+              Accès réservé aux administrateurs autorisés
+              de SOCODA COOP-CA/Kwilu.
             </p>
           </div>
         </section>
       </main>
 
       <footer>
-        <p>© 2026 SOCODA COOP-CA/Kwilu — Administration SOCODA COOP-CA/Kwilu.</p>
+        <p>© 2026 SOCODA COOP-CA/Kwilu</p>
         <p>SOCODA DIGITAL ID · Sécurité et confiance</p>
       </footer>
     </div>
   );
-      }
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/verify/:code" element={<VerifyBadge />} />
+        <Route path="*" element={<Home />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
