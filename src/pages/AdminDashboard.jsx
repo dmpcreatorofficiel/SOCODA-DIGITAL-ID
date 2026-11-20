@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ShieldCheck,
   Users,
@@ -119,10 +119,17 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          <button onClick={loadDashboard} className="refresh-button">
-            <RefreshCw size={17} />
-            Actualiser
-          </button>
+          <div className="dashboard-actions">
+  <Link to="/admin/agents" className="refresh-button">
+    <Users size={17} />
+    Gestion des agents
+  </Link>
+
+  <button onClick={loadDashboard} className="refresh-button">
+    <RefreshCw size={17} />
+    Actualiser
+  </button>
+</div>
         </div>
 
         {error && (
@@ -170,7 +177,7 @@ export default function AdminDashboard() {
               <table>
                 <thead>
                   <tr>
-                    <th>Matricule</th>
+                    <th>ID</th>
                     <th>Nom</th>
                     <th>Postnom</th>
                     <th>Prénom</th>
