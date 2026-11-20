@@ -5,7 +5,10 @@ import {
   QrCode,
   Users,
   CreditCard,
-  LockKeyhole
+  LockKeyhole,
+  House,
+  ScanQrCode,
+  CircleUserRound
 } from "lucide-react";
 
 import AgentManagement from "./pages/AgentManagement";
@@ -23,9 +26,11 @@ import VerifyBadge from "./pages/VerifyBadge";
 import AdminLogin from "./pages/AdminLogin";
 import "./style.css";
 
+
 function SplashScreen() {
   return (
     <div className="socoda-splash">
+
       <style>{`
         .socoda-splash {
           position: fixed;
@@ -181,44 +186,130 @@ function SplashScreen() {
           © 2026 SOCODA COOP-CA/Kwilu
         </p>
       </div>
+
     </div>
   );
 }
 
+
 function Home() {
   return (
-    <div className="app">
+    <div className="app" id="top">
+
+      {/* STYLE DE LA NAVIGATION MOBILE */}
+
+      <style>{`
+        .mobile-bottom-nav {
+          display: none;
+        }
+
+        @media (max-width: 750px) {
+
+          .mobile-bottom-nav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+
+            padding: 9px 8px calc(9px + env(safe-area-inset-bottom));
+
+            background: rgba(255,255,255,0.97);
+            border-top: 1px solid #dce4ed;
+            box-shadow: 0 -6px 22px rgba(8,29,54,0.10);
+            backdrop-filter: blur(12px);
+          }
+
+          .mobile-bottom-nav a {
+            min-height: 52px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+
+            color: #60758b;
+            font-size: 10px;
+            font-weight: 700;
+            text-decoration: none;
+          }
+
+          .mobile-bottom-nav a:nth-child(2) {
+            color: #0b2b4c;
+          }
+
+          .mobile-bottom-nav a:nth-child(2) svg {
+            color: #d5a91d;
+          }
+
+          .mobile-bottom-nav svg {
+            width: 21px;
+            height: 21px;
+          }
+
+          footer {
+            padding-bottom: 105px;
+          }
+        }
+      `}</style>
+
+
+      {/* EN-TÊTE */}
+
       <header className="header">
+
         <div className="brand">
+
           <div className="brand-icon">
             <ShieldCheck size={30} />
           </div>
+
           <div>
-            <h1>SOCODA <span>DIGITAL ID</span></h1>
+            <h1>
+              SOCODA <span>DIGITAL ID</span>
+            </h1>
+
             <p>COOP-CA / KWILU</p>
           </div>
+
         </div>
 
         <div className="header-status">
           <span className="status-dot"></span>
           Système de vérification
         </div>
+
       </header>
 
+
       <main>
+
+        {/* SECTION PRINCIPALE */}
+
         <section className="hero">
+
           <div className="hero-content">
-            <span className="badge">PLATEFORME OFFICIELLE</span>
+
+            <span className="badge">
+              PLATEFORME OFFICIELLE
+            </span>
+
             <h2>
               L'identité professionnelle,
               <span> en toute confiance.</span>
             </h2>
+
             <p>
               Bienvenue sur la plateforme numérique de gestion et de
               vérification des badges des agents de SOCODA COOP-CA/Kwilu.
             </p>
 
             <div className="hero-actions">
+
               <a href="#verification" className="btn-primary">
                 <QrCode size={19} />
                 Vérifier un badge
@@ -228,113 +319,258 @@ function Home() {
                 <LockKeyhole size={18} />
                 Administration
               </Link>
+
             </div>
+
           </div>
 
+
           <div className="hero-visual">
+
             <div className="digital-card">
+
               <div className="card-top">
                 <ShieldCheck size={27} />
                 <span>SOCODA COOP-CA</span>
               </div>
+
               <div className="card-chip"></div>
+
               <div className="card-bottom">
+
                 <div>
                   <small>IDENTITÉ NUMÉRIQUE</small>
                   <strong>OFFICIELLE</strong>
                 </div>
+
                 <QrCode size={55} />
+
               </div>
+
             </div>
+
           </div>
+
         </section>
+
+
+        {/* FONCTIONNALITÉS */}
 
         <section className="features">
+
           <div className="feature">
-            <div className="feature-icon"><QrCode /></div>
+
+            <div className="feature-icon">
+              <QrCode />
+            </div>
+
             <h3>Vérification QR</h3>
-            <p>Authentification numérique des badges.</p>
+
+            <p>
+              Authentification numérique des badges.
+            </p>
+
           </div>
 
+
           <div className="feature">
-            <div className="feature-icon"><Users /></div>
+
+            <div className="feature-icon">
+              <Users />
+            </div>
+
             <h3>Gestion des agents</h3>
-            <p>Centralisation des informations des agents.</p>
+
+            <p>
+              Centralisation des informations des agents.
+            </p>
+
           </div>
 
+
           <div className="feature">
-            <div className="feature-icon"><CreditCard /></div>
+
+            <div className="feature-icon">
+              <CreditCard />
+            </div>
+
             <h3>Gestion des badges</h3>
-            <p>Suivi de validité et des statuts des badges.</p>
+
+            <p>
+              Suivi de validité et des statuts des badges.
+            </p>
+
           </div>
+
         </section>
 
+
+        {/* VÉRIFICATION */}
+
         <section className="verification" id="verification">
+
           <QrCode size={35} />
+
           <div>
+
             <h3>Vérification d'un badge</h3>
+
             <p>
               Scannez le QR code figurant sur un badge SOCODA
               pour consulter son authenticité et sa validité.
             </p>
+
           </div>
+
         </section>
 
+
+        {/* ADMINISTRATION */}
+
         <section className="admin-section">
+
           <LockKeyhole size={25} />
+
           <div>
+
             <h3>Espace d'administration</h3>
+
             <p>
               Accès réservé aux administrateurs autorisés
               de SOCODA COOP-CA/Kwilu.
             </p>
+
             <Link to="/admin/login" className="admin-link">
               Accéder à l'administration →
             </Link>
+
           </div>
+
         </section>
+
       </main>
 
+
+      {/* NAVIGATION MOBILE */}
+
+      <nav
+        className="mobile-bottom-nav"
+        aria-label="Navigation principale"
+      >
+
+        <Link
+          to="/"
+          onClick={() =>
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth"
+            })
+          }
+        >
+          <House />
+          <span>Accueil</span>
+        </Link>
+
+
+        <a href="#verification">
+          <ScanQrCode />
+          <span>Vérifier un badge</span>
+        </a>
+
+
+        <Link to="/admin/login">
+          <CircleUserRound />
+          <span>Compte</span>
+        </Link>
+
+      </nav>
+
+
+      {/* PIED DE PAGE */}
+
       <footer>
+
         <p>© 2026 SOCODA COOP-CA/Kwilu</p>
-        <p>SOCODA DIGITAL ID · Sécurité et confiance</p>
+
+        <p>
+          SOCODA DIGITAL ID · Sécurité et confiance
+        </p>
+
       </footer>
+
     </div>
   );
 }
 
+
 function AppContent() {
+
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
+
     const timer = setTimeout(() => {
       setShowSplash(false);
     }, 5000);
 
     return () => clearTimeout(timer);
+
   }, []);
+
 
   return (
     <>
+
       <Routes>
+
         <Route path="/" element={<Home />} />
-        <Route path="/verify/:code" element={<VerifyBadge />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/agents" element={<AgentManagement />} />
-        <Route path="/admin/badges" element={<BadgeManagement />} />
-        <Route path="*" element={<Home />} />
+
+        <Route
+          path="/verify/:code"
+          element={<VerifyBadge />}
+        />
+
+        <Route
+          path="/admin/login"
+          element={<AdminLogin />}
+        />
+
+        <Route
+          path="/admin"
+          element={<AdminDashboard />}
+        />
+
+        <Route
+          path="/admin/agents"
+          element={<AgentManagement />}
+        />
+
+        <Route
+          path="/admin/badges"
+          element={<BadgeManagement />}
+        />
+
+        <Route
+          path="*"
+          element={<Home />}
+        />
+
       </Routes>
 
+
       {showSplash && <SplashScreen />}
+
     </>
   );
 }
 
+
 export default function App() {
+
   return (
     <BrowserRouter>
       <AppContent />
     </BrowserRouter>
   );
+
 }
