@@ -6,6 +6,8 @@ import {
   LockKeyhole
 } from "lucide-react";
 
+import AgentManagement from "./pages/AgentManagement";
+
 import AdminDashboard from "./pages/AdminDashboard";
 
 import {
@@ -149,6 +151,7 @@ export default function App() {
         <Route path="/verify/:code" element={<VerifyBadge />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/agents" element={<AgentManagement />} />
         <Route path="*" element={<Home />} />
       </Routes>
     </BrowserRouter>
