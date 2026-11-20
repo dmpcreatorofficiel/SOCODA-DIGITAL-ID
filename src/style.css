@@ -822,3 +822,155 @@ footer {
     padding: 25px;
   }
   }
+/* =================================
+   GESTION DES AGENTS - SOCODA
+================================= */
+
+.dashboard-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.agent-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 18px;
+  margin-top: 20px;
+}
+
+.agent-form label {
+  color: #142b50;
+  font-weight: 600;
+  font-size: 14px;
+  align-self: end;
+}
+
+.agent-form input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #d5dce8;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #142b50;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+  transition: 0.2s;
+}
+
+.agent-form input:focus {
+  border-color: #e6b82e;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(230, 184, 46, 0.15);
+}
+
+.agent-form input::placeholder {
+  color: #9aa6b8;
+}
+
+.agent-form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.agent-form-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.agent-form-actions button:first-child {
+  background: #e8edf4;
+  color: #142b50;
+}
+
+.agent-form-actions button:last-child {
+  background: #142b50;
+  color: #fff;
+}
+
+.agent-form-actions button:last-child:hover {
+  background: #e6b82e;
+  color: #142b50;
+}
+
+.agent-form-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Recherche des agents */
+
+.agent-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  border: 1px solid #d5dce8;
+  border-radius: 9px;
+  margin: 18px 0;
+  background: #fff;
+  color: #142b50;
+}
+
+.agent-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  min-width: 0;
+}
+
+/* Boutons d'action */
+
+.table-container td button {
+  padding: 8px;
+  margin: 2px;
+  border: none;
+  border-radius: 6px;
+  background: #e8edf4;
+  color: #142b50;
+  cursor: pointer;
+}
+
+.table-container td button:hover {
+  background: #e6b82e;
+}
+
+/* Adaptation téléphone */
+
+@media (max-width: 600px) {
+  .agent-form {
+    grid-template-columns: 1fr;
+  }
+
+  .agent-form-actions {
+    flex-direction: column;
+  }
+
+  .agent-form-actions button {
+    width: 100%;
+  }
+
+  .dashboard-actions {
+    width: 100%;
+  }
+
+  .dashboard-actions a,
+  .dashboard-actions button {
+    flex: 1;
+    justify-content: center;
+  }
+  }
