@@ -10,7 +10,8 @@ import {
   ShieldCheck,
   AlertCircle,
   QrCode,
-  X
+  X,
+  Ban
 } from "lucide-react";
 
 import { supabase } from "../lib/supabase";
@@ -22,6 +23,8 @@ export default function BadgeManagement() {
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [updatingBadgeId, setUpdatingBadgeId] = useState(null);
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [search, setSearch] = useState("");
@@ -116,13 +119,11 @@ export default function BadgeManagement() {
     setCreating(true);
 
     try {
-      // Génération du numéro officiel
       const { data: badgeNumber, error: numberError } =
         await supabase.rpc("generate_socoda_badge_number");
 
       if (numberError) throw numberError;
 
-      // Création du badge
       const badgeData = {
         agent_id: selectedAgent,
         badge_number: badgeNumber
@@ -152,6 +153,54 @@ export default function BadgeManagement() {
       setError(err.message || "Impossible de créer le badge.");
     } finally {
       setCreating(false);
+    }
+  }
+
+  // SUSPENSION D'UN BADGE
+  async function suspendBadge(badge) {
+    const confirmed = window.confirm(
+      `Voulez-vous vraiment suspendre le badge ${badge.badge_number} ?`
+    );
+
+    if (!confirmed) return;
+
+    setError("");
+    setSuccess("");
+    setUpdatingBadgeId(badge.id);
+
+    try {
+      const { data, error: updateError } = await supabase
+        .from("badges")
+        .update({ status: "suspended" })
+        .eq("id", badge.id)
+        .eq("status", "active")
+        .select("id");
+
+      if (updateError) throw updateError;
+
+      if (!data || data.length === 0) {
+        throw new Error(
+          "Aucune modification effectuée. Vérifiez les droits d'administration et le statut du badge."
+        );
+      }
+
+      setSuccess(
+        `Le badge ${badge.badge_number} a été suspendu avec succès.`
+      );
+
+      if (createdBadge?.id === badge.id) {
+        setCreatedBadge({
+          ...createdBadge,
+          status: "suspended"
+        });
+      }
+
+      await loadData();
+
+    } catch (err) {
+      setError(err.message || "Impossible de suspendre ce badge.");
+    } finally {
+      setUpdatingBadgeId(null);
     }
   }
 
@@ -200,7 +249,11 @@ export default function BadgeManagement() {
             <p>Création, suivi et administration des badges SOCODA.</p>
           </div>
 
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <div style={{
+            display: "flex",
+            gap: "10px",
+            flexWrap: "wrap"
+          }}>
             <button
               className="refresh-button"
               onClick={loadData}
@@ -302,7 +355,9 @@ export default function BadgeManagement() {
             <form onSubmit={createBadge}>
 
               <div style={{ marginBottom: "18px" }}>
-                <label><strong>Sélectionner l'agent *</strong></label>
+                <label>
+                  <strong>Sélectionner l'agent *</strong>
+                </label>
 
                 <select
                   value={selectedAgent}
@@ -342,7 +397,9 @@ export default function BadgeManagement() {
               </div>
 
               <div style={{ marginBottom: "18px" }}>
-                <label><strong>Date d'expiration (facultative)</strong></label>
+                <label>
+                  <strong>Date d'expiration (facultative)</strong>
+                </label>
 
                 <input
                   type="date"
@@ -379,7 +436,9 @@ export default function BadgeManagement() {
               justifyContent: "space-between",
               alignItems: "center"
             }}>
-              <h3><QrCode size={21} /> Badge créé</h3>
+              <h3>
+                <QrCode size={21} /> Badge
+              </h3>
 
               <button
                 onClick={() => setCreatedBadge(null)}
@@ -417,7 +476,14 @@ export default function BadgeManagement() {
               </div>
 
               <p>
-                Statut : <strong>ACTIF</strong>
+                Statut :{" "}
+                <strong>
+                  {createdBadge.status === "suspended"
+                    ? "SUSPENDU"
+                    : createdBadge.status === "revoked"
+                    ? "RÉVOQUÉ"
+                    : "ACTIF"}
+                </strong>
               </p>
 
               <p>
@@ -468,6 +534,7 @@ export default function BadgeManagement() {
                     <th>Expiration</th>
                     <th>Statut</th>
                     <th>QR code</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
 
@@ -488,7 +555,9 @@ export default function BadgeManagement() {
                         </td>
 
                         <td>{agent?.matricule || "—"}</td>
+
                         <td>{badge.issue_date || "—"}</td>
+
                         <td>{badge.expiry_date || "—"}</td>
 
                         <td>
@@ -505,6 +574,44 @@ export default function BadgeManagement() {
                             <QrCode size={16} />
                             Voir QR
                           </button>
+                        </td>
+
+                        <td>
+                          {badge.status === "active" && (
+                            <button
+                              className="refresh-button"
+                              onClick={() => suspendBadge(badge)}
+                              disabled={updatingBadgeId === badge.id}
+                              style={{
+                                background: "#fff0d9",
+                                color: "#9a5b00",
+                                border: "1px solid #e5b45c"
+                              }}
+                            >
+                              <Ban size={16} />
+                              {updatingBadgeId === badge.id
+                                ? "Suspension..."
+                                : "Suspendre"}
+                            </button>
+                          )}
+
+                          {badge.status === "suspended" && (
+                            <span style={{
+                              color: "#b7791f",
+                              fontWeight: "bold"
+                            }}>
+                              Déjà suspendu
+                            </span>
+                          )}
+
+                          {badge.status === "revoked" && (
+                            <span style={{
+                              color: "#b91c1c",
+                              fontWeight: "bold"
+                            }}>
+                              Révoqué
+                            </span>
+                          )}
                         </td>
                       </tr>
                     );
@@ -526,4 +633,4 @@ export default function BadgeManagement() {
       </main>
     </div>
   );
-}
+    }
