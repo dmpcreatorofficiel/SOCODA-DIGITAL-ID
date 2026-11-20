@@ -196,11 +196,90 @@ function Home() {
   return (
     <div className="app" id="top">
 
-      {/* STYLE DE LA NAVIGATION MOBILE */}
-
       <style>{`
         .mobile-bottom-nav {
           display: none;
+        }
+
+        .about-section {
+          padding: 55px 7%;
+          background: #f4f7fb;
+        }
+
+        .about-container {
+          max-width: 1050px;
+          margin: auto;
+        }
+
+        .about-label {
+          display: inline-block;
+          color: #b58a12;
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: 2px;
+          margin-bottom: 12px;
+        }
+
+        .about-section h2 {
+          color: #0b1f3a;
+          font-size: 28px;
+          margin-bottom: 18px;
+        }
+
+        .about-description {
+          color: #526579;
+          font-size: 15px;
+          line-height: 1.8;
+          max-width: 850px;
+        }
+
+        .about-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 18px;
+          margin-top: 30px;
+        }
+
+        .about-card {
+          background: white;
+          border: 1px solid #e1e8f0;
+          border-radius: 14px;
+          padding: 23px;
+          box-shadow: 0 5px 18px rgba(8,29,54,0.04);
+        }
+
+        .about-card-icon {
+          width: 45px;
+          height: 45px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #eaf1f8;
+          color: #0b2b4c;
+          border-radius: 12px;
+          margin-bottom: 15px;
+        }
+
+        .about-card h3 {
+          color: #0b1f3a;
+          font-size: 16px;
+          margin-bottom: 9px;
+        }
+
+        .about-card p {
+          color: #647589;
+          font-size: 13px;
+          line-height: 1.7;
+        }
+
+        .about-note {
+          margin-top: 25px;
+          padding: 18px 20px;
+          border-left: 4px solid #f2c230;
+          background: #fff;
+          color: #526579;
+          line-height: 1.7;
+          border-radius: 5px;
         }
 
         @media (max-width: 750px) {
@@ -225,7 +304,6 @@ function Home() {
 
           .mobile-bottom-nav a {
             min-height: 52px;
-
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -249,6 +327,19 @@ function Home() {
           .mobile-bottom-nav svg {
             width: 21px;
             height: 21px;
+          }
+
+          .about-section {
+            padding: 38px 18px;
+          }
+
+          .about-section h2 {
+            font-size: 23px;
+          }
+
+          .about-grid {
+            grid-template-columns: 1fr;
+            gap: 13px;
           }
 
           footer {
@@ -347,6 +438,94 @@ function Home() {
 
               </div>
 
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* À PROPOS DE SOCODA DIGITAL ID */}
+
+        <section className="about-section" id="about">
+
+          <div className="about-container">
+
+            <span className="about-label">
+              PRÉSENTATION DE LA PLATEFORME
+            </span>
+
+            <h2>
+              À propos de SOCODA DIGITAL ID
+            </h2>
+
+            <p className="about-description">
+              SOCODA DIGITAL ID est une plateforme numérique dédiée
+              à la gestion et à la vérification des badges des agents
+              de SOCODA COOP-CA/Kwilu. Elle facilite la consultation
+              des informations liées aux badges et permet de vérifier
+              leur authenticité ainsi que leur statut à partir d'un
+              code QR.
+            </p>
+
+
+            <div className="about-grid">
+
+              <div className="about-card">
+
+                <div className="about-card-icon">
+                  <ShieldCheck size={24} />
+                </div>
+
+                <h3>Identité numérique</h3>
+
+                <p>
+                  Chaque badge est associé à un agent enregistré
+                  dans le système et à un code de vérification unique.
+                </p>
+
+              </div>
+
+
+              <div className="about-card">
+
+                <div className="about-card-icon">
+                  <QrCode size={24} />
+                </div>
+
+                <h3>Vérification sécurisée</h3>
+
+                <p>
+                  Le scan du QR code permet de consulter les
+                  informations disponibles et le statut du badge.
+                </p>
+
+              </div>
+
+
+              <div className="about-card">
+
+                <div className="about-card-icon">
+                  <Users size={24} />
+                </div>
+
+                <h3>Gestion centralisée</h3>
+
+                <p>
+                  Les administrateurs autorisés assurent la gestion
+                  des agents et le suivi des badges depuis leur espace.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div className="about-note">
+              <strong>Important :</strong> la consultation numérique
+              constitue un moyen de contrôle du badge. En cas de doute,
+              il convient de se référer aux services compétents de
+              SOCODA COOP-CA/Kwilu.
             </div>
 
           </div>
