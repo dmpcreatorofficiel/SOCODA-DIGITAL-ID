@@ -125,6 +125,11 @@ export default function AdminDashboard() {
     Gestion des agents
   </Link>
 
+  <Link to="/admin/badges" className="refresh-button">
+    <CreditCard size={17} />
+    Gestion des badges
+  </Link>
+
   <button onClick={loadDashboard} className="refresh-button">
     <RefreshCw size={17} />
     Actualiser
