@@ -571,18 +571,50 @@ export default function AgentManagement() {
 
               <table>
                 <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Nom complet</th>
-                    <th>Fonction</th>
-                    <th>Bureau</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
+  <tr>
+    <th>PHOTO</th>
+    <th>ID</th>
+    <th>Nom complet</th>
+    <th>Fonction</th>
+    <th>Bureau</th>
+    <th>Actions</th>
+  </tr>
+</thead>
 
                 <tbody>
                   {filteredAgents.map(agent => (
                     <tr key={agent.id}>
+                      <td>
+  {agent.photo_url ? (
+    <img
+      src={agent.photo_url}
+      alt={`${agent.nom} ${agent.prenom}`}
+      style={{
+        width: "48px",
+        height: "48px",
+        objectFit: "cover",
+        borderRadius: "50%",
+        border: "2px solid #e2b629"
+      }}
+    />
+  ) : (
+    <div
+      style={{
+        width: "48px",
+        height: "48px",
+        borderRadius: "50%",
+        background: "#e8edf5",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#142b50",
+        fontWeight: "bold"
+      }}
+    >
+      ?
+    </div>
+  )}
+</td>
 
                       <td>{agent.matricule}</td>
 
