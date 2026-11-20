@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Users, Plus, Search, Pencil, Trash2,
-  Save, X, ArrowLeft, RefreshCw
+  Save, ArrowLeft, Camera, Upload, X
 } from "lucide-react";
 
 import { supabase } from "../lib/supabase";
@@ -27,9 +27,25 @@ export default function AgentManagement() {
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
+
   const [form, setForm] = useState(emptyForm);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState("");
+
+  useEffect(() => {
+    loadAgents();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (photoPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(photoPreview);
+      }
+    };
+  }, [photoPreview]);
 
   async function loadAgents() {
     setLoading(true);
@@ -74,10 +90,6 @@ export default function AgentManagement() {
     }
   }
 
-  useEffect(() => {
-    loadAgents();
-  }, []);
-
   function handleChange(e) {
     setForm({
       ...form,
@@ -85,9 +97,15 @@ export default function AgentManagement() {
     });
   }
 
+  function resetPhoto() {
+    setPhotoFile(null);
+    setPhotoPreview("");
+  }
+
   function openNew() {
     setEditingId(null);
     setForm(emptyForm);
+    resetPhoto();
     setShowForm(true);
     setError("");
   }
@@ -107,16 +125,89 @@ export default function AgentManagement() {
       photo_url: agent.photo_url || ""
     });
 
+    setPhotoFile(null);
+    setPhotoPreview(agent.photo_url || "");
+
     setShowForm(true);
     setError("");
   }
 
+  function handlePhotoChange(e) {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp"
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      setError("Format non autorisé. Utilise JPG, PNG ou WEBP.");
+      e.target.value = "";
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError("La photo ne doit pas dépasser 5 Mo.");
+      e.target.value = "";
+      return;
+    }
+
+    setError("");
+
+    setPhotoFile(file);
+
+    setPhotoPreview(URL.createObjectURL(file));
+  }
+
+  async function uploadPhoto() {
+    if (!photoFile) {
+      return form.photo_url.trim() || null;
+    }
+
+    const extensions = {
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/webp": "webp"
+    };
+
+    const extension = extensions[photoFile.type];
+
+    const fileName =
+      `${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
+
+    const filePath = fileName;
+
+    const { error: uploadError } = await supabase.storage
+      .from("agents-photos")
+      .upload(filePath, photoFile, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: photoFile.type
+      });
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const { data } = supabase.storage
+      .from("agents-photos")
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
+
     setSaving(true);
     setError("");
 
     try {
+      const photoUrl = await uploadPhoto();
+
       const payload = {
         matricule: form.matricule.trim(),
         nom: form.nom.trim(),
@@ -126,7 +217,7 @@ export default function AgentManagement() {
         bureau: form.bureau.trim(),
         telephone: form.telephone.trim() || null,
         email: form.email.trim() || null,
-        photo_url: form.photo_url.trim() || null
+        photo_url: photoUrl
       };
 
       if (
@@ -158,6 +249,7 @@ export default function AgentManagement() {
       setShowForm(false);
       setForm(emptyForm);
       setEditingId(null);
+      resetPhoto();
 
       await loadAgents();
 
@@ -212,6 +304,7 @@ export default function AgentManagement() {
             <Users size={27} />
             SOCODA DIGITAL ID
           </h1>
+
           <p>Administration SOCODA COOP-CA/Kwilu</p>
         </div>
 
@@ -250,10 +343,15 @@ export default function AgentManagement() {
           <section className="dashboard-panel">
 
             <h3>
-              {editingId ? "Modifier un agent" : "Enregistrer un nouvel agent"}
+              {editingId
+                ? "Modifier un agent"
+                : "Enregistrer un nouvel agent"}
             </h3>
 
-            <form className="agent-form" onSubmit={handleSubmit}>
+            <form
+              className="agent-form"
+              onSubmit={handleSubmit}
+            >
 
               <label>ID *</label>
               <input
@@ -317,27 +415,128 @@ export default function AgentManagement() {
                 onChange={handleChange}
               />
 
-              <label>Lien de la photo</label>
-              <input
-                name="photo_url"
-                type="url"
-                value={form.photo_url}
-                onChange={handleChange}
-                placeholder="https://..."
-              />
+              <div
+                style={{
+                  gridColumn: "1 / -1",
+                  marginTop: "12px"
+                }}
+              >
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "12px"
+                  }}
+                >
+                  <Camera size={17} style={{ verticalAlign: "middle" }} />
+                  {" "}Photo de l'agent
+                </label>
+
+                {photoPreview && (
+                  <div
+                    style={{
+                      marginBottom: "15px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "15px",
+                      flexWrap: "wrap"
+                    }}
+                  >
+                    <img
+                      src={photoPreview}
+                      alt="Aperçu de la photo"
+                      style={{
+                        width: "115px",
+                        height: "125px",
+                        objectFit: "cover",
+                        borderRadius: "10px",
+                        border: "2px solid #d5dce8"
+                      }}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        resetPhoto();
+                        setForm({
+                          ...form,
+                          photo_url: ""
+                        });
+                      }}
+                      style={{
+                        padding: "10px 14px",
+                        border: "none",
+                        borderRadius: "7px",
+                        background: "#fee2e2",
+                        color: "#991b1b",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <X size={15} />
+                      Retirer la photo
+                    </button>
+                  </div>
+                )}
+
+                <label
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "12px 16px",
+                    background: "#142b50",
+                    color: "#ffffff",
+                    borderRadius: "8px",
+                    cursor: "pointer"
+                  }}
+                >
+                  <Upload size={18} />
+                  {photoPreview
+                    ? "Changer la photo"
+                    : "Choisir une photo"}
+
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handlePhotoChange}
+                    style={{ display: "none" }}
+                  />
+                </label>
+
+                <p
+                  style={{
+                    fontSize: "12px",
+                    color: "#64748b",
+                    marginTop: "8px"
+                  }}
+                >
+                  Formats acceptés : JPG, PNG, WEBP.
+                  Taille maximale : 5 Mo.
+                </p>
+              </div>
 
               <div className="agent-form-actions">
+
                 <button
                   type="button"
-                  onClick={() => setShowForm(false)}
+                  onClick={() => {
+                    setShowForm(false);
+                    resetPhoto();
+                  }}
                 >
                   Annuler
                 </button>
 
-                <button type="submit" disabled={saving}>
+                <button
+                  type="submit"
+                  disabled={saving}
+                >
                   <Save size={17} />
-                  {saving ? "Enregistrement..." : "Enregistrer"}
+
+                  {saving
+                    ? "Enregistrement..."
+                    : "Enregistrer"}
                 </button>
+
               </div>
 
             </form>
@@ -396,11 +595,15 @@ export default function AgentManagement() {
                       <td>{agent.bureau || "—"}</td>
 
                       <td>
-                        <button onClick={() => openEdit(agent)}>
+                        <button
+                          onClick={() => openEdit(agent)}
+                        >
                           <Pencil size={16} />
                         </button>
 
-                        <button onClick={() => deleteAgent(agent)}>
+                        <button
+                          onClick={() => deleteAgent(agent)}
+                        >
                           <Trash2 size={16} />
                         </button>
                       </td>
