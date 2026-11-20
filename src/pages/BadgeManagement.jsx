@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { QRCodeSVG } from "qrcode.react";
 import {
   CreditCard,
   ArrowLeft,
@@ -7,7 +8,9 @@ import {
   Search,
   RefreshCw,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  QrCode,
+  X
 } from "lucide-react";
 
 import { supabase } from "../lib/supabase";
@@ -18,8 +21,15 @@ export default function BadgeManagement() {
   const [badges, setBadges] = useState([]);
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [search, setSearch] = useState("");
+
+  const [showForm, setShowForm] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [createdBadge, setCreatedBadge] = useState(null);
 
   async function loadData() {
     setLoading(true);
@@ -71,7 +81,7 @@ export default function BadgeManagement() {
       setAgents(agentsResult.data || []);
 
     } catch (err) {
-      setError(err.message || "Erreur lors du chargement des données.");
+      setError(err.message || "Erreur lors du chargement.");
     } finally {
       setLoading(false);
     }
@@ -80,6 +90,70 @@ export default function BadgeManagement() {
   useEffect(() => {
     loadData();
   }, []);
+
+  async function createBadge(e) {
+    e.preventDefault();
+
+    setError("");
+    setSuccess("");
+
+    if (!selectedAgent) {
+      setError("Veuillez sélectionner un agent.");
+      return;
+    }
+
+    const existingBadge = badges.find(
+      badge =>
+        badge.agent_id === selectedAgent &&
+        badge.status !== "revoked"
+    );
+
+    if (existingBadge) {
+      setError("Cet agent possède déjà un badge non révoqué.");
+      return;
+    }
+
+    setCreating(true);
+
+    try {
+      // Génération du numéro officiel
+      const { data: badgeNumber, error: numberError } =
+        await supabase.rpc("generate_socoda_badge_number");
+
+      if (numberError) throw numberError;
+
+      // Création du badge
+      const badgeData = {
+        agent_id: selectedAgent,
+        badge_number: badgeNumber
+      };
+
+      if (expiryDate) {
+        badgeData.expiry_date = expiryDate;
+      }
+
+      const { data: newBadge, error: insertError } = await supabase
+        .from("badges")
+        .insert(badgeData)
+        .select("*")
+        .single();
+
+      if (insertError) throw insertError;
+
+      setCreatedBadge(newBadge);
+      setSuccess("Badge créé avec succès !");
+      setShowForm(false);
+      setSelectedAgent("");
+      setExpiryDate("");
+
+      await loadData();
+
+    } catch (err) {
+      setError(err.message || "Impossible de créer le badge.");
+    } finally {
+      setCreating(false);
+    }
+  }
 
   const filteredBadges = badges.filter(badge => {
     const agent = agents.find(a => a.id === badge.agent_id);
@@ -95,6 +169,10 @@ export default function BadgeManagement() {
 
     return text.includes(search.toLowerCase());
   });
+
+  function getVerificationUrl(badge) {
+    return `${window.location.origin}/verify/${badge.verification_code}`;
+  }
 
   return (
     <div className="dashboard">
@@ -122,16 +200,48 @@ export default function BadgeManagement() {
             <p>Création, suivi et administration des badges SOCODA.</p>
           </div>
 
-          <button className="refresh-button" onClick={loadData}>
-            <RefreshCw size={17} />
-            Actualiser
-          </button>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <button
+              className="refresh-button"
+              onClick={loadData}
+              disabled={loading}
+            >
+              <RefreshCw size={17} />
+              Actualiser
+            </button>
+
+            <button
+              className="refresh-button"
+              onClick={() => {
+                setShowForm(true);
+                setError("");
+                setSuccess("");
+              }}
+              disabled={agents.length === 0}
+            >
+              <Plus size={17} />
+              Créer un badge
+            </button>
+          </div>
         </div>
 
         {error && (
           <div className="dashboard-error">
             <AlertCircle size={18} />
             {error}
+          </div>
+        )}
+
+        {success && (
+          <div style={{
+            padding: "13px",
+            marginBottom: "18px",
+            background: "#e7f8ed",
+            color: "#176b35",
+            borderRadius: "8px"
+          }}>
+            <ShieldCheck size={18} />
+            {" "}{success}
           </div>
         )}
 
@@ -167,6 +277,168 @@ export default function BadgeManagement() {
 
         </section>
 
+        {showForm && (
+          <section className="dashboard-panel">
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center"
+            }}>
+              <h3>Créer un nouveau badge</h3>
+
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer"
+                }}
+              >
+                <X />
+              </button>
+            </div>
+
+            <form onSubmit={createBadge}>
+
+              <div style={{ marginBottom: "18px" }}>
+                <label><strong>Sélectionner l'agent *</strong></label>
+
+                <select
+                  value={selectedAgent}
+                  onChange={e => setSelectedAgent(e.target.value)}
+                  required
+                  style={{
+                    width: "100%",
+                    padding: "13px",
+                    marginTop: "8px",
+                    borderRadius: "8px",
+                    border: "1px solid #ccc"
+                  }}
+                >
+                  <option value="">Choisir un agent</option>
+
+                  {agents.map(agent => {
+                    const alreadyHasBadge = badges.some(
+                      b =>
+                        b.agent_id === agent.id &&
+                        b.status !== "revoked"
+                    );
+
+                    return (
+                      <option
+                        key={agent.id}
+                        value={agent.id}
+                        disabled={alreadyHasBadge}
+                      >
+                        {agent.nom} {agent.postnom || ""} {agent.prenom}
+                        {" — "}
+                        {agent.matricule}
+                        {alreadyHasBadge ? " (Badge déjà attribué)" : ""}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              <div style={{ marginBottom: "18px" }}>
+                <label><strong>Date d'expiration (facultative)</strong></label>
+
+                <input
+                  type="date"
+                  value={expiryDate}
+                  onChange={e => setExpiryDate(e.target.value)}
+                  min={new Date().toISOString().split("T")[0]}
+                  style={{
+                    width: "100%",
+                    padding: "13px",
+                    marginTop: "8px",
+                    borderRadius: "8px",
+                    border: "1px solid #ccc"
+                  }}
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="refresh-button"
+                disabled={creating}
+              >
+                <Plus size={18} />
+                {creating ? "Création en cours..." : "Créer le badge"}
+              </button>
+
+            </form>
+          </section>
+        )}
+
+        {createdBadge && (
+          <section className="dashboard-panel">
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center"
+            }}>
+              <h3><QrCode size={21} /> Badge créé</h3>
+
+              <button
+                onClick={() => setCreatedBadge(null)}
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer"
+                }}
+              >
+                <X />
+              </button>
+            </div>
+
+            <div style={{
+              textAlign: "center",
+              padding: "20px"
+            }}>
+              <h2 style={{ color: "#102b50" }}>
+                {createdBadge.badge_number}
+              </h2>
+
+              <p>QR CODE DE VÉRIFICATION</p>
+
+              <div style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: "20px"
+              }}>
+                <QRCodeSVG
+                  value={getVerificationUrl(createdBadge)}
+                  size={210}
+                  level="H"
+                  includeMargin
+                />
+              </div>
+
+              <p>
+                Statut : <strong>ACTIF</strong>
+              </p>
+
+              <p>
+                Date d'émission : {createdBadge.issue_date}
+              </p>
+
+              <p>
+                Expiration : {createdBadge.expiry_date || "Aucune"}
+              </p>
+
+              <a
+                href={getVerificationUrl(createdBadge)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Tester la vérification du badge
+              </a>
+            </div>
+          </section>
+        )}
+
         <section className="dashboard-panel">
 
           <h3>Liste des badges ({badges.length})</h3>
@@ -183,9 +455,7 @@ export default function BadgeManagement() {
           {loading ? (
             <p>Chargement des badges...</p>
           ) : filteredBadges.length === 0 ? (
-            <p className="empty-state">
-              Aucun badge trouvé.
-            </p>
+            <p className="empty-state">Aucun badge trouvé.</p>
           ) : (
             <div className="table-container">
               <table>
@@ -197,6 +467,7 @@ export default function BadgeManagement() {
                     <th>Émission</th>
                     <th>Expiration</th>
                     <th>Statut</th>
+                    <th>QR code</th>
                   </tr>
                 </thead>
 
@@ -217,15 +488,23 @@ export default function BadgeManagement() {
                         </td>
 
                         <td>{agent?.matricule || "—"}</td>
-
                         <td>{badge.issue_date || "—"}</td>
-
                         <td>{badge.expiry_date || "—"}</td>
 
                         <td>
                           <span className={`badge-status ${badge.status}`}>
                             {badge.status}
                           </span>
+                        </td>
+
+                        <td>
+                          <button
+                            className="refresh-button"
+                            onClick={() => setCreatedBadge(badge)}
+                          >
+                            <QrCode size={16} />
+                            Voir QR
+                          </button>
                         </td>
                       </tr>
                     );
@@ -247,4 +526,4 @@ export default function BadgeManagement() {
       </main>
     </div>
   );
-        }
+}
