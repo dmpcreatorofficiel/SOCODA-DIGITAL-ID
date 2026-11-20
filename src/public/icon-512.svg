@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="512" height="512" viewBox="0 0 512 512">
+  <title>SOCODA DIGITAL ID - Icône de sécurité</title>
+  <rect width="512" height="512" rx="104" fill="#0B1F3A"/>
+  <!-- Cadenas blanc -->
+  <path d="M160 220v-54c0-53 43-96 96-96s96 43 96 96v54h-42v-54c0-30-24-54-54-54s-54 24-54 54v54z"
+        fill="#FFFFFF"/>
+  <rect x="104" y="196" width="304" height="244" rx="54" fill="#FFFFFF"/>
+  <!-- Clé bleu marine au centre du cadenas -->
+  <circle cx="256" cy="286" r="53" fill="#0B1F3A"/>
+  <circle cx="256" cy="286" r="17" fill="#FFFFFF"/>
+  <path d="M238 326h36v76h-36z" fill="#0B1F3A"/>
+  <path d="M274 350h42v25h-42zM274 386h30v22h-30z" fill="#0B1F3A"/>
+</svg>
