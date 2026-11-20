@@ -11,7 +11,8 @@ import {
   AlertCircle,
   QrCode,
   X,
-  Ban
+  Ban,
+  CheckCircle
 } from "lucide-react";
 
 import { supabase } from "../lib/supabase";
@@ -94,6 +95,7 @@ export default function BadgeManagement() {
     loadData();
   }, []);
 
+  // CRÉATION D'UN BADGE
   async function createBadge(e) {
     e.preventDefault();
 
@@ -179,9 +181,7 @@ export default function BadgeManagement() {
       if (updateError) throw updateError;
 
       if (!data || data.length === 0) {
-        throw new Error(
-          "Aucune modification effectuée. Vérifiez les droits d'administration et le statut du badge."
-        );
+        throw new Error("Aucune modification effectuée.");
       }
 
       setSuccess(
@@ -199,6 +199,61 @@ export default function BadgeManagement() {
 
     } catch (err) {
       setError(err.message || "Impossible de suspendre ce badge.");
+    } finally {
+      setUpdatingBadgeId(null);
+    }
+  }
+
+  // RÉACTIVATION D'UN BADGE
+  async function reactivateBadge(badge) {
+    const today = new Date().toISOString().split("T")[0];
+
+    if (badge.expiry_date && badge.expiry_date < today) {
+      setError(
+        "Impossible de réactiver ce badge : sa date d'expiration est dépassée."
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Voulez-vous vraiment réactiver le badge ${badge.badge_number} ?`
+    );
+
+    if (!confirmed) return;
+
+    setError("");
+    setSuccess("");
+    setUpdatingBadgeId(badge.id);
+
+    try {
+      const { data, error: updateError } = await supabase
+        .from("badges")
+        .update({ status: "active" })
+        .eq("id", badge.id)
+        .eq("status", "suspended")
+        .select("id");
+
+      if (updateError) throw updateError;
+
+      if (!data || data.length === 0) {
+        throw new Error("Aucune modification effectuée.");
+      }
+
+      setSuccess(
+        `Le badge ${badge.badge_number} a été réactivé avec succès.`
+      );
+
+      if (createdBadge?.id === badge.id) {
+        setCreatedBadge({
+          ...createdBadge,
+          status: "active"
+        });
+      }
+
+      await loadData();
+
+    } catch (err) {
+      setError(err.message || "Impossible de réactiver ce badge.");
     } finally {
       setUpdatingBadgeId(null);
     }
@@ -596,12 +651,21 @@ export default function BadgeManagement() {
                           )}
 
                           {badge.status === "suspended" && (
-                            <span style={{
-                              color: "#b7791f",
-                              fontWeight: "bold"
-                            }}>
-                              Déjà suspendu
-                            </span>
+                            <button
+                              className="refresh-button"
+                              onClick={() => reactivateBadge(badge)}
+                              disabled={updatingBadgeId === badge.id}
+                              style={{
+                                background: "#e7f8ed",
+                                color: "#176b35",
+                                border: "1px solid #8ac9a0"
+                              }}
+                            >
+                              <CheckCircle size={16} />
+                              {updatingBadgeId === badge.id
+                                ? "Réactivation..."
+                                : "Réactiver"}
+                            </button>
                           )}
 
                           {badge.status === "revoked" && (
@@ -633,4 +697,4 @@ export default function BadgeManagement() {
       </main>
     </div>
   );
-    }
+}
