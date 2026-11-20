@@ -12,7 +12,8 @@ import {
   QrCode,
   X,
   Ban,
-  CheckCircle
+  CheckCircle,
+  Pencil
 } from "lucide-react";
 
 import { supabase } from "../lib/supabase";
@@ -34,6 +35,11 @@ export default function BadgeManagement() {
   const [selectedAgent, setSelectedAgent] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [createdBadge, setCreatedBadge] = useState(null);
+
+  // MODIFICATION DE LA DATE D'EXPIRATION
+  const [editingBadge, setEditingBadge] = useState(null);
+  const [editingExpiryDate, setEditingExpiryDate] = useState("");
+  const [savingExpiry, setSavingExpiry] = useState(false);
 
   async function loadData() {
     setLoading(true);
@@ -94,6 +100,63 @@ export default function BadgeManagement() {
   useEffect(() => {
     loadData();
   }, []);
+
+  // OUVRIR LE FORMULAIRE DE MODIFICATION
+  function openExpiryEditor(badge) {
+    setEditingBadge(badge);
+    setEditingExpiryDate(badge.expiry_date || "");
+    setError("");
+    setSuccess("");
+    setShowForm(false);
+  }
+
+  // ENREGISTRER LA NOUVELLE DATE D'EXPIRATION
+  async function saveExpiryDate(e) {
+    e.preventDefault();
+
+    if (!editingBadge) return;
+
+    setError("");
+    setSuccess("");
+    setSavingExpiry(true);
+
+    try {
+      const { data, error: updateError } = await supabase
+        .from("badges")
+        .update({
+          expiry_date: editingExpiryDate || null
+        })
+        .eq("id", editingBadge.id)
+        .select("*")
+        .single();
+
+      if (updateError) throw updateError;
+
+      setBadges(previous =>
+        previous.map(badge =>
+          badge.id === editingBadge.id ? data : badge
+        )
+      );
+
+      if (createdBadge?.id === editingBadge.id) {
+        setCreatedBadge(data);
+      }
+
+      setSuccess(
+        `La date d'expiration du badge ${data.badge_number} a été modifiée avec succès.`
+      );
+
+      setEditingBadge(null);
+      setEditingExpiryDate("");
+
+    } catch (err) {
+      setError(
+        err.message || "Impossible de modifier la date d'expiration."
+      );
+    } finally {
+      setSavingExpiry(false);
+    }
+  }
 
   // CRÉATION D'UN BADGE
   async function createBadge(e) {
@@ -322,6 +385,7 @@ export default function BadgeManagement() {
               className="refresh-button"
               onClick={() => {
                 setShowForm(true);
+                setEditingBadge(null);
                 setError("");
                 setSuccess("");
               }}
@@ -385,6 +449,109 @@ export default function BadgeManagement() {
 
         </section>
 
+        {/* FORMULAIRE DE MODIFICATION DE DATE */}
+        {editingBadge && (
+          <section className="dashboard-panel">
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "10px"
+            }}>
+              <h3>
+                <Pencil size={20} />
+                {" "}Modifier la date d'expiration
+              </h3>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingBadge(null);
+                  setEditingExpiryDate("");
+                }}
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer"
+                }}
+              >
+                <X />
+              </button>
+            </div>
+
+            <p>
+              Badge concerné :{" "}
+              <strong>{editingBadge.badge_number}</strong>
+            </p>
+
+            <form onSubmit={saveExpiryDate}>
+
+              <div style={{ marginBottom: "18px" }}>
+                <label>
+                  <strong>Nouvelle date d'expiration</strong>
+                </label>
+
+                <input
+                  type="date"
+                  value={editingExpiryDate}
+                  onChange={e => setEditingExpiryDate(e.target.value)}
+                  min={new Date().toISOString().split("T")[0]}
+                  style={{
+                    width: "100%",
+                    padding: "13px",
+                    marginTop: "8px",
+                    borderRadius: "8px",
+                    border: "1px solid #ccc"
+                  }}
+                />
+
+                <small style={{
+                  display: "block",
+                  marginTop: "8px",
+                  color: "#666"
+                }}>
+                  Laissez ce champ vide pour supprimer la date d'expiration.
+                </small>
+              </div>
+
+              <div style={{
+                display: "flex",
+                gap: "10px",
+                flexWrap: "wrap"
+              }}>
+                <button
+                  type="submit"
+                  className="refresh-button"
+                  disabled={savingExpiry}
+                >
+                  <CheckCircle size={17} />
+                  {savingExpiry
+                    ? "Enregistrement..."
+                    : "Enregistrer la modification"}
+                </button>
+
+                <button
+                  type="button"
+                  className="refresh-button"
+                  onClick={() => {
+                    setEditingBadge(null);
+                    setEditingExpiryDate("");
+                  }}
+                  disabled={savingExpiry}
+                  style={{
+                    background: "#eeeeee",
+                    color: "#333"
+                  }}
+                >
+                  Annuler
+                </button>
+              </div>
+
+            </form>
+          </section>
+        )}
+
+        {/* FORMULAIRE DE CRÉATION */}
         {showForm && (
           <section className="dashboard-panel">
             <div style={{
@@ -484,6 +651,7 @@ export default function BadgeManagement() {
           </section>
         )}
 
+        {/* AFFICHAGE DU QR CODE */}
         {createdBadge && (
           <section className="dashboard-panel">
             <div style={{
@@ -560,6 +728,7 @@ export default function BadgeManagement() {
           </section>
         )}
 
+        {/* LISTE DES BADGES */}
         <section className="dashboard-panel">
 
           <h3>Liste des badges ({badges.length})</h3>
@@ -632,50 +801,73 @@ export default function BadgeManagement() {
                         </td>
 
                         <td>
-                          {badge.status === "active" && (
+                          <div style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "8px",
+                            minWidth: "145px"
+                          }}>
+
+                            {/* MODIFIER LA DATE */}
                             <button
                               className="refresh-button"
-                              onClick={() => suspendBadge(badge)}
-                              disabled={updatingBadgeId === badge.id}
+                              onClick={() => openExpiryEditor(badge)}
                               style={{
-                                background: "#fff0d9",
-                                color: "#9a5b00",
-                                border: "1px solid #e5b45c"
+                                background: "#e8f1ff",
+                                color: "#174a85",
+                                border: "1px solid #9bbce5"
                               }}
                             >
-                              <Ban size={16} />
-                              {updatingBadgeId === badge.id
-                                ? "Suspension..."
-                                : "Suspendre"}
+                              <Pencil size={16} />
+                              Modifier date
                             </button>
-                          )}
 
-                          {badge.status === "suspended" && (
-                            <button
-                              className="refresh-button"
-                              onClick={() => reactivateBadge(badge)}
-                              disabled={updatingBadgeId === badge.id}
-                              style={{
-                                background: "#e7f8ed",
-                                color: "#176b35",
-                                border: "1px solid #8ac9a0"
-                              }}
-                            >
-                              <CheckCircle size={16} />
-                              {updatingBadgeId === badge.id
-                                ? "Réactivation..."
-                                : "Réactiver"}
-                            </button>
-                          )}
+                            {badge.status === "active" && (
+                              <button
+                                className="refresh-button"
+                                onClick={() => suspendBadge(badge)}
+                                disabled={updatingBadgeId === badge.id}
+                                style={{
+                                  background: "#fff0d9",
+                                  color: "#9a5b00",
+                                  border: "1px solid #e5b45c"
+                                }}
+                              >
+                                <Ban size={16} />
+                                {updatingBadgeId === badge.id
+                                  ? "Suspension..."
+                                  : "Suspendre"}
+                              </button>
+                            )}
 
-                          {badge.status === "revoked" && (
-                            <span style={{
-                              color: "#b91c1c",
-                              fontWeight: "bold"
-                            }}>
-                              Révoqué
-                            </span>
-                          )}
+                            {badge.status === "suspended" && (
+                              <button
+                                className="refresh-button"
+                                onClick={() => reactivateBadge(badge)}
+                                disabled={updatingBadgeId === badge.id}
+                                style={{
+                                  background: "#e7f8ed",
+                                  color: "#176b35",
+                                  border: "1px solid #8ac9a0"
+                                }}
+                              >
+                                <CheckCircle size={16} />
+                                {updatingBadgeId === badge.id
+                                  ? "Réactivation..."
+                                  : "Réactiver"}
+                              </button>
+                            )}
+
+                            {badge.status === "revoked" && (
+                              <span style={{
+                                color: "#b91c1c",
+                                fontWeight: "bold"
+                              }}>
+                                Révoqué
+                              </span>
+                            )}
+
+                          </div>
                         </td>
                       </tr>
                     );
