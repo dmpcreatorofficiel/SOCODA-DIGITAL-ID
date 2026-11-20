@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 import AgentManagement from "./pages/AgentManagement";
-
+import BadgeManagement from "./pages/BadgeManagement";
 import AdminDashboard from "./pages/AdminDashboard";
 
 import {
@@ -45,12 +45,10 @@ function Home() {
         <section className="hero">
           <div className="hero-content">
             <span className="badge">PLATEFORME OFFICIELLE</span>
-
             <h2>
               L'identité professionnelle,
               <span> en toute confiance.</span>
             </h2>
-
             <p>
               Bienvenue sur la plateforme numérique de gestion et de
               vérification des badges des agents de SOCODA COOP-CA/Kwilu.
@@ -75,9 +73,7 @@ function Home() {
                 <ShieldCheck size={27} />
                 <span>SOCODA COOP-CA</span>
               </div>
-
               <div className="card-chip"></div>
-
               <div className="card-bottom">
                 <div>
                   <small>IDENTITÉ NUMÉRIQUE</small>
@@ -152,6 +148,7 @@ export default function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/agents" element={<AgentManagement />} />
+        <Route path="/admin/badges" element={<BadgeManagement />} />
         <Route path="*" element={<Home />} />
       </Routes>
     </BrowserRouter>
