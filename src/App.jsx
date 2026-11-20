@@ -14,6 +14,7 @@ import {
 } from "react-router-dom";
 
 import VerifyBadge from "./pages/VerifyBadge";
+import AdminLogin from "./pages/AdminLogin";
 import "./style.css";
 
 function Home() {
@@ -24,7 +25,6 @@ function Home() {
           <div className="brand-icon">
             <ShieldCheck size={30} />
           </div>
-
           <div>
             <h1>SOCODA <span>DIGITAL ID</span></h1>
             <p>COOP-CA / KWILU</p>
@@ -58,10 +58,10 @@ function Home() {
                 Vérifier un badge
               </a>
 
-              <a href="#administration" className="btn-secondary">
+              <Link to="/admin/login" className="btn-secondary">
                 <LockKeyhole size={18} />
                 Administration
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -116,7 +116,7 @@ function Home() {
           </div>
         </section>
 
-        <section className="admin-section" id="administration">
+        <section className="admin-section">
           <LockKeyhole size={25} />
           <div>
             <h3>Espace d'administration</h3>
@@ -124,6 +124,9 @@ function Home() {
               Accès réservé aux administrateurs autorisés
               de SOCODA COOP-CA/Kwilu.
             </p>
+            <Link to="/admin/login" className="admin-link">
+              Accéder à l'administration →
+            </Link>
           </div>
         </section>
       </main>
@@ -142,6 +145,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/verify/:code" element={<VerifyBadge />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="*" element={<Home />} />
       </Routes>
     </BrowserRouter>
