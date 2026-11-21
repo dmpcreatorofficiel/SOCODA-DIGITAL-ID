@@ -221,7 +221,7 @@ function Home() {
 
         .about-section h2 {
           color: #0b1f3a;
-          font-size: 28px;
+          font-size: 24px;
           margin-bottom: 18px;
         }
 
