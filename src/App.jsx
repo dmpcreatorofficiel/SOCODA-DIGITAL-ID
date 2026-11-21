@@ -440,9 +440,9 @@ function Home() {
               PRÉSENTATION DE LA PLATEFORME
             </span>
 
-            <h2>
+            <h3>
               À propos de SOCODA DIGITAL ID
-            </h2>
+            </h3>
 
             <p className="about-description">
               SOCODA DIGITAL ID est une plateforme numérique dédiée
