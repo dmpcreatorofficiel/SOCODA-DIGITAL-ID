@@ -4,7 +4,6 @@ import {
   ShieldCheck,
   QrCode,
   Users,
-  LockKeyhole,
   House,
   ScanQrCode,
   CircleUserRound
@@ -399,20 +398,6 @@ function Home() {
               vérification des badges des agents de SOCODA COOP-CA/Kwilu.
             </p>
 
-            <div className="hero-actions">
-
-              <Link to="/scan" className="btn-primary">
-                <QrCode size={19} />
-                Vérifier un badge
-              </Link>
-
-              <Link to="/admin/login" className="btn-secondary">
-                <LockKeyhole size={18} />
-                Administration
-              </Link>
-
-            </div>
-
           </div>
 
 
@@ -523,30 +508,6 @@ function Home() {
               il convient de se référer aux services compétents de
               SOCODA COOP-CA/Kwilu.
             </div>
-
-          </div>
-
-        </section>
-
-
-        {/* ADMINISTRATION */}
-
-        <section className="admin-section">
-
-          <LockKeyhole size={25} />
-
-          <div>
-
-            <h3>Espace d'administration</h3>
-
-            <p>
-              Accès réservé aux administrateurs autorisés
-              de SOCODA COOP-CA/Kwilu.
-            </p>
-
-            <Link to="/admin/login" className="admin-link">
-              Accéder à l'administration →
-            </Link>
 
           </div>
 
