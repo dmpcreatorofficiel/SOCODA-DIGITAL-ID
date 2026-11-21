@@ -4,7 +4,6 @@ import {
   ShieldCheck,
   QrCode,
   Users,
-  CreditCard,
   LockKeyhole,
   House,
   ScanQrCode,
@@ -530,79 +529,6 @@ function Home() {
         </section>
 
 
-        {/* FONCTIONNALITÉS */}
-
-        <section className="features">
-
-          <div className="feature">
-
-            <div className="feature-icon">
-              <QrCode />
-            </div>
-
-            <h3>Vérification QR</h3>
-
-            <p>
-              Authentification numérique des badges.
-            </p>
-
-          </div>
-
-          <div className="feature">
-
-            <div className="feature-icon">
-              <Users />
-            </div>
-
-            <h3>Gestion des agents</h3>
-
-            <p>
-              Centralisation des informations des agents.
-            </p>
-
-          </div>
-
-          <div className="feature">
-
-            <div className="feature-icon">
-              <CreditCard />
-            </div>
-
-            <h3>Gestion des badges</h3>
-
-            <p>
-              Suivi de validité et des statuts des badges.
-            </p>
-
-          </div>
-
-        </section>
-
-
-        {/* VÉRIFICATION */}
-
-        <section className="verification" id="verification">
-
-          <QrCode size={35} />
-
-          <div>
-
-            <h3>Vérification d'un badge</h3>
-
-            <p>
-              Scannez le QR code figurant sur un badge SOCODA
-              pour consulter son authenticité et sa validité.
-            </p>
-
-            <Link to="/scan" className="btn-primary">
-              Ouvrir le scanner
-            </Link>
-
-          </div>
-
-        </section>
-
-
         {/* ADMINISTRATION */}
 
         <section className="admin-section">
@@ -649,12 +575,10 @@ function Home() {
           <span>Accueil</span>
         </Link>
 
-
         <Link to="/scan">
           <ScanQrCode />
           <span>Vérifier un badge</span>
         </Link>
-
 
         <Link to="/admin/login">
           <CircleUserRound />
@@ -737,7 +661,6 @@ function AppContent() {
 
       </Routes>
 
-
       {showSplash && <SplashScreen />}
 
     </>
@@ -753,4 +676,4 @@ export default function App() {
     </BrowserRouter>
   );
 
-          }
+}
