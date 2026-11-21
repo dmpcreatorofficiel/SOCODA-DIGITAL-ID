@@ -14,6 +14,9 @@ import {
 import AgentManagement from "./pages/AgentManagement";
 import BadgeManagement from "./pages/BadgeManagement";
 import AdminDashboard from "./pages/AdminDashboard";
+import VerifyBadge from "./pages/VerifyBadge";
+import ScanBadge from "./pages/ScanBadge";
+import AdminLogin from "./pages/AdminLogin";
 
 import {
   BrowserRouter,
@@ -22,8 +25,6 @@ import {
   Link
 } from "react-router-dom";
 
-import VerifyBadge from "./pages/VerifyBadge";
-import AdminLogin from "./pages/AdminLogin";
 import "./style.css";
 
 
@@ -401,10 +402,10 @@ function Home() {
 
             <div className="hero-actions">
 
-              <a href="#verification" className="btn-primary">
+              <Link to="/scan" className="btn-primary">
                 <QrCode size={19} />
                 Vérifier un badge
-              </a>
+              </Link>
 
               <Link to="/admin/login" className="btn-secondary">
                 <LockKeyhole size={18} />
@@ -445,7 +446,7 @@ function Home() {
         </section>
 
 
-        {/* À PROPOS DE SOCODA DIGITAL ID */}
+        {/* À PROPOS */}
 
         <section className="about-section" id="about">
 
@@ -468,7 +469,6 @@ function Home() {
               code QR.
             </p>
 
-
             <div className="about-grid">
 
               <div className="about-card">
@@ -486,7 +486,6 @@ function Home() {
 
               </div>
 
-
               <div className="about-card">
 
                 <div className="about-card-icon">
@@ -501,7 +500,6 @@ function Home() {
                 </p>
 
               </div>
-
 
               <div className="about-card">
 
@@ -519,7 +517,6 @@ function Home() {
               </div>
 
             </div>
-
 
             <div className="about-note">
               <strong>Important :</strong> la consultation numérique
@@ -551,7 +548,6 @@ function Home() {
 
           </div>
 
-
           <div className="feature">
 
             <div className="feature-icon">
@@ -565,7 +561,6 @@ function Home() {
             </p>
 
           </div>
-
 
           <div className="feature">
 
@@ -598,6 +593,10 @@ function Home() {
               Scannez le QR code figurant sur un badge SOCODA
               pour consulter son authenticité et sa validité.
             </p>
+
+            <Link to="/scan" className="btn-primary">
+              Ouvrir le scanner
+            </Link>
 
           </div>
 
@@ -651,10 +650,10 @@ function Home() {
         </Link>
 
 
-        <a href="#verification">
+        <Link to="/scan">
           <ScanQrCode />
           <span>Vérifier un badge</span>
-        </a>
+        </Link>
 
 
         <Link to="/admin/login">
@@ -704,6 +703,8 @@ function AppContent() {
 
         <Route path="/" element={<Home />} />
 
+        <Route path="/scan" element={<ScanBadge />} />
+
         <Route
           path="/verify/:code"
           element={<VerifyBadge />}
@@ -752,4 +753,4 @@ export default function App() {
     </BrowserRouter>
   );
 
-}
+          }
